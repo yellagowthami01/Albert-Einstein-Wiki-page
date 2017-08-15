@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Table</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="css/vendor/bootstrap.min.css" type="text/css" rel="stylesheet">
+    <link href="css/vendor/font-awesome.min.css" type="text/css" rel="stylesheet">
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans:400,300,600' rel='stylesheet' type='text/css'>
+    <link href="css/jquery.bdt.css" type="text/css" rel="stylesheet">
+    <link href="css/style.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+<header>
+	<div class="container mainheader">
+		<div class="row">
+			<div class="col-md-3">
+				<img src="img/albert.jpg" />
+			</div>
+			<div class="col-md-8">
+				<input type="text" placeholder="Search" onkeydown="triggerSearch(this)"  />
+			</div>
+		</div>
+	</div>	
+</header>
+
+
+<div class="container">    
+    <div class="row">
+            <div class="box clearfix">
+            <table class="table table-hover" id="bootstrap-table">
+                <thead>
+                <tr>
+                    <th>title</th>
+                    <th>timestamp</th>
+                    <th>snippet</th>
+                    <th>size</th>
+                </tr>
+                </thead>
+                <tbody>
+                
+                </tbody>
+            </table>
+        </div>
+        </div>
+    </div>
+</div>
+
+<script src="http://code.jquery.com/jquery-2.1.1.min.js" type="text/javascript"></script>
+<script src="js/vendor/bootstrap.min.js" type="text/javascript"></script>
+<script src="js/vendor/jquery.sortelements.js" type="text/javascript"></script>
+<script src="js/jquery.bdt.min.js" type="text/javascript"></script>
+<script>
+
+    var triggerSearch  = function(thisObj) {
+        console.log(thisObj.value);
+        if(thisObj.value.length > 3) {
+            searchListing(thisObj.value);
+        } 
+        
+    }
+
+    $(document).ready( function () {
+     
+        searchListing("Albert Einstein");
+        $('#bootstrap-table').bdt({
+            showSearchForm: 0,
+            showEntriesPerPageField: 0
+        });
+    });
+
+    var searchListing = function(searchString) {
+        $.ajax({
+            url: 'https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch='+searchString+'&utf8=&format=json',
+            type: 'GET',
+            dataType: 'jsonp',
+            success: function (searchRes) {
+                searchListingSuccess(searchRes);
+            },
+            error: function (request, message, error) {
+                handleException(request, message, error);
+            }
+        });
+    }
+
+    var searchListingSuccess = function(data) {
+        console.log(data.query.search[0]);
+        $('#bootstrap-table tbody tr').remove();
+              // Iterate over the collection of data
+      $.each(data.query.search, function (index, data) {
+            $("#bootstrap-table tbody").append(
+                searchBuildTableRow(data));
+            });
+    }
+    var searchBuildTableRow = function(data) {
+              var ret = "<tr>" +
+            "<td>" + data.title + "</td>" +
+            "<td>" + data.timestamp + "</td>" +
+            "<td><span>" + data.snippet+ "</span></td>" +
+            "<td>" + data.size + "</td>" +
+          "</tr>";
+
+      return ret;
+    }
+</script>
+</body>
+</html>
